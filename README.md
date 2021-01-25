@@ -82,4 +82,4 @@ Making sure that the irrigation doesn't turn on today when its going to bucket t
 
 However, their API isn't the simplest to understand. And I missed their documentation - if it exists.
 
-I built a script that provides the necessary guidance to my irrigation system. And then, subsequently, migrated the script to this gem. The README in that  repo details my analysis and exploration.
+I built a script that provides the necessary guidance to my irrigation system. And then, subsequently, migrated the script to this gem. The README in [here](https://github.com/renenw/yr_parser) details my analysis and exploration.
