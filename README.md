@@ -43,7 +43,7 @@ Within our code, requests are managed as follows:
 ```
       forecast = $redis.get(redis_key)
       if forecast.nil?
-        forecast = YrParser.get(latitude: @latitude longitude: @longitude)
+        forecast = YrParser.get(latitude: @latitude, longitude: @longitude)
         $redis.set(redis_key, forecast, ex: forecast[:metadata][:seconds_to_cache])
       end
       forecast
