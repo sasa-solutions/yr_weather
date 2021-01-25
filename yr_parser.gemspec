@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
 
   spec.name          = "yr_parser"
-  spec.version       = '0.1.0'
+  spec.version       = '0.2.0'
   spec.date          = '2021-01-25'
   spec.licenses      = ['MIT']
 

@@ -34,7 +34,7 @@ class YrParser
 
   def process
     @data = get_forecast_from_yr
-    parse.merge(meta_data)
+    parse.merge(metadata: metadata)
 
     #     next_run_date = data[:yr_forecast][:meta][:model][:nextrun]                 rescue nil
     #     next_run_date = Time.parse(next_run_date)                                   if next_run_date    
@@ -51,21 +51,23 @@ class YrParser
       JSON.parse(body, symbolize_names: true)
     end
 
-    def meta_data
-      next_run_at  = @data.dig(:meta, :model, :nextrun)
-      next_run_at  = Time.parse(next_run_at)   if next_run_at
-      generated_at = @data.dig(:meta, :model, :runended)
-      generated_at = Time.parse(generated_at)  if generated_at
+    def metadata
+      next_run_at      = @data.dig(:meta, :model, :nextrun)
+      next_run_at      = Time.parse(next_run_at)   if next_run_at
+      generated_at     = @data.dig(:meta, :model, :runended)
+      generated_at     = Time.parse(generated_at)  if generated_at
+      seconds_to_cache = (next_run_at - Time.now).to_i + 15*60
       {
         requested_at:       @now,
         next_run_at:        next_run_at,
         model_generated_at: generated_at,
+        seconds_to_cache:   seconds_to_cache,
       }
     end
 
     def parse
 
-      result    = { hourly: {}, today: {}, three_days: {}, week: {}, daily: {} }
+      result    = { hourly: {}, today: {}, tomorrow: {}, three_days: {}, week: {}, daily: {} }
 
       key_count = nil
       data = @data.dig(:product, :time).map do |f|
@@ -149,13 +151,19 @@ class YrParser
         result[:daily][:wind_direction]  << wind_direction.compact.max_by { |d| wind_direction.count(i) }
       end
 
-      # day_view
-      hourly = point_forecasts.select { |h| h[:to]<=(@start_of_day+24*60*60) }
+      # today
       result[:today][:precipitation]   = result[:daily][:precipitation][0]
       result[:today][:min_temperature] = result[:daily][:min_temperature][0]
       result[:today][:max_temperature] = result[:daily][:max_temperature][0]
       result[:today][:max_wind_speed]  = result[:daily][:max_wind_speed][0]
       result[:today][:wind_direction]  = result[:daily][:wind_direction][0]
+
+      # tomorrow
+      result[:tomorrow][:precipitation]   = result[:daily][:precipitation][1]
+      result[:tomorrow][:min_temperature] = result[:daily][:min_temperature][1]
+      result[:tomorrow][:max_temperature] = result[:daily][:max_temperature][1]
+      result[:tomorrow][:max_wind_speed]  = result[:daily][:max_wind_speed][1]
+      result[:tomorrow][:wind_direction]  = result[:daily][:wind_direction][1]
 
       # we need to get the hourly data for the period through to when our six hourly data starts
       hourly = point_forecasts.select { |h| h[:to]<= six_hourly_forecasts.map { |f| f[:from] }.min } 
