@@ -41,12 +41,20 @@ YrParser.get(latitude: -33.9531096408383, longitude: 18.4806353422955)[:metadata
 ```
 Within our code, requests are managed as follows:
 ```
+    def get_forecast
       forecast = $redis.get(redis_key)
       if forecast.nil?
         forecast = YrParser.get(latitude: @latitude, longitude: @longitude)
-        $redis.set(redis_key, forecast, ex: forecast[:metadata][:seconds_to_cache])
+        $redis.set(redis_key, forecast.to_json, ex: forecast[:metadata][:seconds_to_cache])
+      else
+        forecast = JSON.parse(forecast, symbolize_names: true)
       end
       forecast
+    end
+
+    def redis_key
+      "weather.#{@latitude}.#{@longitude}"
+    end
 ```
 
 ## Detailed Parameters
