@@ -1,93 +1,75 @@
 
-# yr_parser
+# yr_weather
 
-## TL;DR
-This gem yr.no forecasts into daily and hourly forecasts, and as well as into summaries that are simpler to understand, and easy to script into databases and other systems.
+This gem converts yr.no forecasts into application friendly structures. It summarises and aggregates the data to make it easy to deliver weather forecasts, for any place on earth, using the awesome yr.no forecasts.
 
-yr.no forecasts include point-in-time forecasts (for, for example, temperature), and forecasts that relate to a time range (for, for example, precipitation).
+Specifically, the Gem repackages yr's data to make it easy to:
+1. Present it
+2. Draw graphs
+3. Make decisions 
+4. Script forecasts into databases or other systems
+
+The Gem deals with caching (either using the file system, or in Redis), and constructs the API request to YR in a manner that complies with their [requirements](https://developer.yr.no/doc/locationforecast/HowTO/).
 
 ## Installation
 Either add it to your Gemfile:
-`gem 'yr_parser'` and then `bundle install`.
+`gem 'yr_weather'`
 
-Or,
-`bundle install yr_parser`
+And then `bundle install`.
 
+Or: `bundle install yr_weather`
+
+## Configuration
+While YR don't require any registration or API keys, they do as that you provide a site name and email address. Specifically:
+> the name of your website and some contact info (e.g. a GitHub URL, a non-personal email address, a working website or a mobile app store appname)
+
+To this end, the gem will require at least an `@` symbol in the site name.
+
+`/config/initializers/weather.rb`
+```
+YrWeather.config do |c|
+  c.sitename   = '<the_name_of_your_website>;<an_email_address>'
+  c.utc_offset = '+02:00'
+  c.redis      = Redis.new(:host => 'localhost', :port => 6379)
+end
+```
+`utc_offset` is optional, and is used to calculate the day start time.
+
+If `redis` is configured, it will be used to cache the forecasts. If it is `nil` or omitted, the gem will cache data in the file system.
 ## Usage
 ```
-irb(main):001:0> require 'yr_parser'
-=> true
-irb(main):002:0> YrParser.get(latitude: -33.9531096408383, longitude: 18.4806353422955)[:today]
-=> {:precipitation=>0.0, :min_temperature=>19.3, :max_temperature=>25.5, :max_wind_speed=>6.7, :wind_direction=>"S"}
+parser = YrWeather.new(latitude: -33.953109, longitude: 18.480635)
+pp parser.metadata
+pp parser.current
+pp parser.next_12_hours
+pp parser.daily
+pp parser.six_hourly
+pp parser.three_days
+pp parser.week
+pp parser.arrays
 ```
-You can also ask it for `tomorrow`: `YrParser.get(latitude: -33.9531096408383, longitude: 18.4806353422955)[:tomorrow]`
 
-And, you can ask it about the weather over the coming three days (or week): 
-```
-YrParser.get(latitude: -33.9531096408383, longitude: 18.4806353422955)[:three_days]
-=> {:precipitation=>0.2, :min_temperature=>17.6, :max_temperature=>25.5, :max_wind_speed=>9.2}
-```
-This tells us that the maximum temperature over the next three days will be `25.5`, the maximum wind speed will be 9.2m/s, and we should expect 0.2mm of rain at some point.
+Method|Description
+--|--|
+`metadata`|Returns a hash describing the forecast. It includes units, expiry times, and geographic detail.
+`current`|Current meteorological conditions: temperature, wind speed, etc.
+`next_12_hours`|Conditions over the next twelve hours.
+`daily`|For the next week, per day, minima and maxima, maximum windspeeds, rainfall, etc.
+`six_hourly`|Six hourly forecast detail.
+`three_days`|Maximum and minimum temperature over the next three days, maximum windspeed, as well as cumulative forecast precipitation for those three days.
+`week`|Maximum and minimum temperature over the next week, maximum windspeed, as well as cumulative forecast precipitation for the week.
+`arrays`|A hash of six, equally sized, arrays: `at`, `temperature`, `wind_speed`, `wind_speed_knots`, `precipitation`, and `hours`. Use this data for graphing.
+
+
+## Icons
+YR provide a set of icons [here](https://api.met.no/weatherapi/weathericon/2.0/documentation).
 ## Caching
-YR only run their model periodically. As such, there's no point in beating up their API's endlessly. In our environments, we cache the result and use the cached forecast until YR are scheduled to update it. The metadata returned by yr_parser helps with that:
-```
-YrParser.get(latitude: -33.9531096408383, longitude: 18.4806353422955)[:metadata][:seconds_to_cache]
-=> 17234
-```
-Other metadata includes when this forecast was downloaded and generated:
-```
-YrParser.get(latitude: -33.9531096408383, longitude: 18.4806353422955)[:metadata]
-=> {:requested_at=>2021-01-25 14:52:57 +0000, :next_run_at=>2021-01-25 19:23:55 UTC, :model_generated_at=>2021-01-25 13:18:53 UTC, :seconds_to_cache=>17156}
-```
-Within our code, requests are managed as follows:
-```
-    def get_forecast
-      forecast = $redis.get(redis_key)
-      if forecast.nil?
-        forecast = YrParser.get(latitude: @latitude, longitude: @longitude)
-        $redis.set(redis_key, forecast.to_json, ex: forecast[:metadata][:seconds_to_cache])
-      else
-        forecast = JSON.parse(forecast, symbolize_names: true)
-      end
-      forecast
-    end
+YR only run their model periodically. As such, there's no point in beating up their API's endlessly. The gem will cache results based on the "expires" guidance provided by their API servers.
 
-    def redis_key
-      "weather.#{@latitude}.#{@longitude}"
-    end
-```
-
-## Detailed Parameters
-The script returns A JSON structure as follows:
-Node|Description|Type
--|-|-
-`today`|Value only nodes: `precipitation`, `min_temperature`, `max_temperature`, `max_wind_speed`,`wind_direction`|Object
-`tomorrow`|Value only nodes: `precipitation`, `min_temperature`, `max_temperature`, `max_wind_speed`,`wind_direction`|Object
-`three_days`|Summary data detailing weather over the next three days. Value only nodes: `precipitation`, `min_temperature`, `max_temperature`, `max_wind_speed`|Object
-`week`|Summary data detailing weather over the next seven days. Value only nodes: `precipitation`, `min_temperature`, `max_temperature`, `max_wind_speed`|Object
-`hourly`|Object with five nodes: `from_time`, `temperatures`, `wind_speed`, `wind_direction`, `precipitation`. These nodes contain equally sized arrays which list times, temperatures etc that match the hour starting at the corresponding `from_time` entry.|Object
-`daily`|Object with five nodes: `from_time`, `temperatures`, `wind_speed`, `wind_direction`, `precipitation`. These nodes contain equally sized arrays which list times, temperatures etc that match the day starting at the corresponding `from_time` value.|Object
-
-A detailed exploration and unit definitions can be found in "Detailed Outputs" below. Or install and play with the gem - its probably more intuitive than wading through this document!
-
-### Parameters
-Parameter|Detail|Required?|Type|Default
----|---|--|--|--
-latitude|Latitude|Required|Float|
-longitude|Longitude|Required|Float|
-msl|Altitude|Optional|Integer|0
-utc_offset|Timezone offset. For example: +2:00. It is *vital* that this offset includes a colon, as illustrated.|Optional|String|Defaults to local system.
-
-Latitude, longitude and MSL are passed transparently through to YR. MSL *mean sea level* (I think), seems optional on YR's side.
+The gem will either need to be able to write to Redis, or to the Linux temporary directory (internally, we call `Dir.tmpdir`).
 
 ## Dependencies
 Requires a reasonably recent version of ruby. There are no other dependencies.
 
-## Context
-Even before Cape Town's water crisis, I got grumpy when my irrigation system watered the garden when it was raining. Or going to rain. Or watered the lawn when the wind was blowing. This lead to me building an Arduino-based, network driven switch system (the code is [here](https://github.com/renenw/harduino/blob/master/switch/switch.ino)). 
-
-Making sure that the irrigation doesn't turn on today when its going to bucket tomorrow, obviously, requires a weather forecast. And by far the most accurate forecast for my hood is the forecast provided by the Norwegian weather service.
-
-However, their API isn't the simplest to understand. And I missed their documentation - if it exists.
-
-I built a script that provides the necessary guidance to my irrigation system. And then, subsequently, migrated the script to this gem. The README in [here](https://github.com/renenw/yr_parser) details my analysis and exploration.
+## Contributing
+Please do! There's plenty that can be improved here!

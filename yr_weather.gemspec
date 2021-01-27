@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
 
   spec.name          = "yr_weather"
-  spec.version       = '1.0.0'
+  spec.version       = '1.0.1'
   spec.date          = '2021-01-27'
   spec.licenses      = ['MIT']
 
@@ -13,8 +13,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["renen@121.co.za"]
 
   spec.summary       = 'Easily interpret and use yr.no weather forecast APIs'
-  spec.description   = 'This gem leverages the yr.no weather API to convert location data into hourly forecasts, and summaries that are simpler to understand, and easy to script into databases and systems.'
-  spec.homepage      = 'https://github.com/sasa-solutions/yr_parser'
+  spec.description   = 'Detailed, accurate, forecast data from yr.no. Converts location data into usable forecasts (for different periods), as well as into summaries that are simple to understand, and easy to use.'
+  spec.homepage      = 'https://github.com/sasa-solutions/yr_weather'
 
   spec.files = ['lib/yr_weather.rb']
 
