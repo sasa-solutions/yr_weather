@@ -59,7 +59,19 @@ Method|Description
 `three_days`|Maximum and minimum temperature over the next three days, maximum windspeed, as well as cumulative forecast precipitation for those three days.
 `week`|Maximum and minimum temperature over the next week, maximum windspeed, as well as cumulative forecast precipitation for the week.
 `arrays`|A hash of six, equally sized, arrays: `at`, `temperature`, `wind_speed`, `wind_speed_knots`, `precipitation`, and `hours`. Use this data for graphing.
-
+## Returned Values
+You will generally get back hashes, with some or all of the following:
+Parameter|Description
+--|--|
+`temperature_maximum`|Maximum temperature
+`temperature_minimum`|Minimum temperature
+`wind_speed_max`|Wind speed (meters per second)
+`wind_speed_max_knots`|Wind speed (knots)
+`wind_description`|A Beaufort scale descriptor: _Breezy_ or _hurricane force_. Human friendly.
+`wind_direction`|`N`, `S`, `SE` etc. Will be the predominant wind direction for the period.
+`precipitation`|How much it's going to rain in that period.
+`at`|When this forecast period begins.
+`symbol_code`|Maps to an [icon](https://api.met.no/weatherapi/weathericon/2.0/documentation).
 
 ## Icons
 YR provide a set of icons [here](https://api.met.no/weatherapi/weathericon/2.0/documentation).
