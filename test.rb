@@ -10,12 +10,10 @@ end
 parser = YrWeather.new(latitude: -33.9531096408383, longitude: 18.4806353422955)
 # pp parser.initialised?
 # pp parser.metadata
-pp parser.current
+# pp parser.current
 # pp parser.next_12_hours
 # pp parser.daily
 # pp parser.six_hourly
 # pp parser.three_days
 # pp parser.week
 # pp parser.arrays.keys
-
-# pp parser.initialised?

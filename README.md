@@ -10,6 +10,8 @@ Specifically, the Gem repackages yr's data to make it easy to:
 4. Script forecasts into databases or other systems
 
 The Gem deals with caching (either using the file system, or in Redis), and constructs the API request to YR in a manner that complies with their [requirements](https://developer.yr.no/doc/locationforecast/HowTO/).
+## Terms of Service
+YR are pretty permissive. There is a request for attribution, and a twenty requests per second rate limit. Before you get to far, please review [this](https://developer.yr.no/doc/TermsOfService/).
 
 ## Installation
 Either add it to your Gemfile:
