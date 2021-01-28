@@ -177,7 +177,8 @@ class YrWeather
       nodes[t + i*6*60*60]
     end.compact.map do |node|
       {
-        at:                   node.dig(:time),
+        from:                 node.dig(:time),
+        to:                   node.dig(:time) + 6*60*60,
         temperature_maximum:  node.dig(:data, :next_6_hours, :details, :air_temperature_max),
         temperature_minimum:  node.dig(:data, :next_6_hours, :details, :air_temperature_min),
         wind_speed_max:       node.dig(:data, :instant, :details, :wind_speed),
@@ -194,7 +195,7 @@ class YrWeather
     8.times.map do |day|
       start = @start_of_day + day*24*60*60
       range = start..(start + 24*60*60)
-      forecast(range).merge(at: start)
+      forecast(range).merge(from: start, to: start + 24*60*60)
     end
   end
 
@@ -210,7 +211,8 @@ class YrWeather
       }
     end
     results = {
-      at:               [],
+      from:             [],
+      to:               [],
       temperature:      [],
       wind_speed:       [],
       wind_speed_knots: [],
@@ -219,7 +221,8 @@ class YrWeather
     }
     points.each do |point|
       point[:hours].times do |i|
-        results[:at]               << point[:at] + i*60*60
+        results[:from]             << point[:at] + i*60*60
+        results[:to]               << point[:at] + (i+1)*60*60
         results[:temperature]      << point[:temperature]
         results[:wind_speed]       << point[:wind_speed]
         results[:wind_speed_knots] << to_knots(point[:wind_speed])
