@@ -1,4 +1,3 @@
-
 # yr_weather
 
 This gem converts yr.no forecasts into application friendly structures. It summarises and aggregates the data to make it easy to deliver weather forecasts, for any place on earth, using the awesome yr.no forecasts.
@@ -10,6 +9,13 @@ Specifically, the Gem repackages yr's data to make it easy to:
 4. Script forecasts into databases or other systems
 
 The Gem deals with caching (either using the file system, or in Redis), and constructs the API request to YR in a manner that complies with their [requirements](https://developer.yr.no/doc/locationforecast/HowTO/).
+
+Takes the heavy lifting out of creating a forecast like this:
+
+![alt text](https://raw.githubusercontent.com/sasa-solutions/yr_weather/main/example.png)
+
+Code is below.
+
 ## Terms of Service
 YR are pretty permissive. There is a request for attribution, and a twenty requests per second rate limit. Before you get to far, please review [this](https://developer.yr.no/doc/TermsOfService/).
 
@@ -84,6 +90,81 @@ The gem will either need to be able to write to Redis, or to the Linux temporary
 
 ## Dependencies
 Requires a reasonably recent version of ruby. There are no other dependencies.
+## Sample Code
+To render the forecast as illustrated above:
+```
+<%
+  @weather = YrWeather.new(latitude: @latitude, longitude: @longitude)
+  current  = @weather.current
+%>
+
+  <div class="d-flex mb-4 ml-1">
+    
+    <div class="card h-120 mr-4">
+      <div class="card-body">
+        <h4 class="card-title">Current Conditions</h5>
+        <div class="d-flex">
+          <div><img src="/img/weather_icons/<%=current[:symbol_code]%>.svg" width="128" height="128" /></div>
+          <div class="h2">
+            <%=current[:air_temperature].round%><small class="text-muted">&deg;C</small><br/>
+            <small class="text-muted"><%=current[:wind_direction]%></small> <%=current[:wind_speed].round%> <small class="text-muted">ms<sup>-1</sup> (<%=current[:wind_description]%>)</small><br/>
+            <%=current[:precipitation_amount]%> <small class="text-muted">mm rain</small><br/>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card h-120 mr-4">
+      <div class="card-body">
+        <h4 class="card-title">Three Day View</h5>
+        <div class="d-flex">
+          <div class="h2">
+            High: <%=@weather.three_days[:temperature_maximum].round%><small class="text-muted">&deg;C</small><br/>
+            Low: <%=@weather.three_days[:temperature_minimum].round%><small class="text-muted">&deg;C</small><br/>
+            Max: <%=@weather.three_days[:wind_speed_max].round%> <small class="text-muted">ms<sup>-1</sup> mostly <%=@weather.three_days[:wind_direction]%></small><br/>
+            Cumm: <%=@weather.three_days[:precipitation].round%> <small class="text-muted">mm rain</small><br/>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card h-120">
+      <div class="card-body">
+        <h4 class="card-title">Week View</h5>
+        <div class="d-flex">
+          <div class="h2">
+            High: <%=@weather.week[:temperature_maximum].round%><small class="text-muted">&deg;C</small><br/>
+            Low: <%=@weather.week[:temperature_minimum].round%><small class="text-muted">&deg;C</small><br/>
+            Max: <%=@weather.week[:wind_speed_max].round%> <small class="text-muted">ms<sup>-1</sup> mostly <%=@weather.week[:wind_direction]%></small><br/>
+            Cumm: <%=@weather.week[:precipitation].round%> <small class="text-muted">mm rain</small><br/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="d-flex flex-wrap" >
+    <% @weather.six_hourly.each do |forecast| %>
+      <div class="mb-2 mr-2" style="width: 220px;">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title"><span data-format="ddd, HH:mm" class="time"><%=forecast[:from]%></span> to <span data-format="HH:mm" class="time"><%=forecast[:to]%></span></h5>
+            <div class="d-flex">
+              <div class="mr-2"><img src="/img/weather_icons/<%=forecast[:symbol_code]%>.svg" width="64" height="64" /></div>
+              <p class="card-text">
+                Max: <%=forecast[:temperature_maximum].round%><small class="text-muted">&deg;C</small><br/>
+                <small class="text-muted"><%=forecast[:wind_direction]%></small> <%=forecast[:wind_speed_max]%> <small class="text-muted">ms<sup>-1</sup></small><br/>
+                <%=forecast[:precipitation]%> <small class="text-muted">mm rain</small><br/>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+```
+This code has dependencies on Bootstrap, as well as some JavaScript magic we use for formatting dates and times. But, hopefully you get a sense of what's involved in using the gem.
 
 ## Contributing
 Please do! There's plenty that can be improved here!
