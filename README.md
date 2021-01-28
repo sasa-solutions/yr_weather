@@ -78,7 +78,7 @@ Parameter|Description
 `wind_description`|A Beaufort scale descriptor: _Breezy_ or _hurricane force_. Human friendly.
 `wind_direction`|`N`, `S`, `SE` etc. Will be the predominant wind direction for the period.
 `precipitation`|How much it's going to rain in that period.
-`from`, `to`, `at`|The range or time that this forecast, or forecast period relates to.
+`from`, `to`, `at`|The range or time that this forecast, or forecast period, relates to.
 `symbol_code`|Maps to an [icon](https://api.met.no/weatherapi/weathericon/2.0/documentation).
 
 ## Icons
