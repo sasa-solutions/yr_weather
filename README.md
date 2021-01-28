@@ -52,6 +52,7 @@ pp parser.current
 pp parser.next_12_hours
 pp parser.daily
 pp parser.six_hourly
+pp parser.tomorrow
 pp parser.three_days
 pp parser.week
 pp parser.arrays
@@ -64,6 +65,7 @@ Method|Description
 `next_12_hours`|Conditions over the next twelve hours.
 `daily`|For the next week, per day, minima and maxima, maximum windspeeds, rainfall, etc.
 `six_hourly`|Six hourly forecast detail.
+tomorrow|Tomorrow's maximum and minimum temperature, maximum windspeed, as well as cumulative forecast precipitation.
 `three_days`|Maximum and minimum temperature over the next three days, maximum windspeed, as well as cumulative forecast precipitation for those three days.
 `week`|Maximum and minimum temperature over the next week, maximum windspeed, as well as cumulative forecast precipitation for the week.
 `arrays`|A hash of six, equally sized, arrays: `at`, `temperature`, `wind_speed`, `wind_speed_knots`, `precipitation`, and `hours`. Use this data for graphing.

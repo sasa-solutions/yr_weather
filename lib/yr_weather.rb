@@ -153,6 +153,11 @@ class YrWeather
     forecast(range).merge(symbol: symbol_code_hourly(range))
   end
 
+  def tomorrow
+    range = (@start_of_day + 24*60*60)..(@start_of_day + 2*24*60*60)
+    forecast(range).tap { |hs| hs.delete(:wind_description) }
+  end
+
   def three_days
     range = @now..(@now + 3*24*60*60)
     forecast(range).tap { |hs| hs.delete(:wind_description) }
