@@ -184,7 +184,7 @@ class YrWeather
         wind_speed_max:       node.dig(:data, :instant, :details, :wind_speed),
         wind_speed_max_knots: to_knots(node.dig(:data, :instant, :details, :wind_speed)),
         wind_direction:       degrees_to_bearing(node.dig(:data, :instant, :details, :wind_from_direction)),
-        wind_description:     node.dig(:data, :instant, :details, :wind_speed),
+        wind_description:     wind_description(node.dig(:data, :instant, :details, :wind_speed)),
         precipitation:        node.dig(:data, :next_6_hours, :details, :precipitation_amount),
         symbol_code:          node.dig(:data, :next_6_hours, :summary, :symbol_code),
       }

@@ -5,8 +5,8 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
 
   spec.name          = "yr_weather"
-  spec.version       = '1.0.1'
-  spec.date          = '2021-01-27'
+  spec.version       = '1.0.3'
+  spec.date          = '2021-01-28'
   spec.licenses      = ['MIT']
 
   spec.authors       = ["renen"]
