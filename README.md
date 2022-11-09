@@ -28,7 +28,7 @@ And then `bundle install`.
 Or: `bundle install yr_weather`
 
 ## Configuration
-While YR don't require any registration or API keys, they do as that you provide a site name and email address. Specifically:
+While YR don't require any registration or API keys, they do ask is that you provide a site name and email address. Specifically:
 > the name of your website and some contact info (e.g. a GitHub URL, a non-personal email address, a working website or a mobile app store appname)
 
 To this end, the gem will require at least an `@` symbol in the site name.
